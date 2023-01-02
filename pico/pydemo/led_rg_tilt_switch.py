@@ -1,9 +1,9 @@
-# 按钮开关
+# 倾斜开关
 
 from machine import Pin
 from time import sleep
 
-pin_button = Pin(13, Pin.IN, Pin.PULL_UP)
+pin_tilt = Pin(13, Pin.IN, Pin.PULL_UP)
 pin_red = Pin(15, Pin.OUT)
 pin_green = Pin(14, Pin.OUT)
 pin_red.value(1)
@@ -13,14 +13,10 @@ def led_toggle():
     pin_red.toggle()
     pin_green.toggle()
     
-def on_button_down(chn):
+def on_tilt_detect(chn):
     led_toggle()
     if pin_button.value() == 0:
-        print('press')
+        print('tilt')
         
-pin_button.irq(trigger=Pin.IRQ_FALLING, handler=on_button_down)
-
-while True:
-    sleep(1)
-        
+pin_tilt.irq(trigger=Pin.IRQ_FALLING, handler=on_tilt_detect)
 
