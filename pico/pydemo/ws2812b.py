@@ -36,8 +36,9 @@ class Ws2812b:
         self.put_color(BLACK)
     
     def put_color(self, color):
-        for c in color:
-            for i in range(8):
+        gbr = [color[i] for i in range(2, -1, -1)]
+        for c in gbr: # G B R
+            for i in range(7, -1, -1): # 高位先发
                 v = (c << i) & 1
                 if v == 0:
                     self.pin.value(1)
@@ -55,9 +56,10 @@ class Ws2812b:
         sleep(0.00005)
         
     def show(self, color):
+        self.put_reset()
         for i in range(self.count):
             self.put_color(color)
-            self.put_reset()
+        self.put_reset()
 
 print('start')
 with Ws2812b() as ws2812b:
