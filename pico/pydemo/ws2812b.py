@@ -39,7 +39,7 @@ class Ws2812b:
         gbr = [color[i] for i in range(2, -1, -1)]
         for c in gbr: # G B R
             for i in range(7, -1, -1): # 高位先发
-                v = (c << i) & 1
+                v = (c >> i) & 1
                 if v == 0:
                     self.pin.value(1)
                     sleep(0.0000004)
