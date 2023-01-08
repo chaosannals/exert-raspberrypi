@@ -1,3 +1,4 @@
+# 红外激光头
 from machine import Pin
 from time import sleep
 
