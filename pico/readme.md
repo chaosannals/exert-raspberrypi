@@ -19,3 +19,5 @@
 ## SDK
 
 [pico-sdk](https://github.com/raspberrypi/pico-sdk)
+
+## [awesome micropython](https://awesome-micropython.com/)
