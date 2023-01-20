@@ -1,9 +1,10 @@
 # 时钟 
 # 源码来源（https://github.com/omarbenhamid/micropython-ds1302-rtc）
 # VCC 5V
-# 代码不可用，读出来都是 [2000,0,0,0,0,0,0]
+
 
 from machine import Pin
+from time import sleep
 
 DS1302_REG_SECOND = (0x80)
 DS1302_REG_MINUTE = (0x82)
@@ -134,15 +135,16 @@ class DS1302:
 
 
 ds = DS1302(Pin(0), Pin(1), Pin(2))
-#ds.date_time([2022,1,1, 1, 10, 12, 44])
+#ds.date_time([2022,1, 20, 3, 10, 30, 44])
 hour = ds.hour()
 #ds.second(10)
 dt = ds.date_time()
 
 print(f'{dt}, {hour}')
 
-ds.start()
+#ds.start()
 while True:
     dt = ds.date_time()
-    print(f'{dt}, {hour}')
+    print(f'{dt}')
+    sleep(1)
 ds.stop()
