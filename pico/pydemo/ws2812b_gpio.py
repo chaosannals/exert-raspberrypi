@@ -1,7 +1,7 @@
 from machine import Pin
 from time import sleep
 
-## 时间好像不准（没办法到 0.x us 级别），无法模拟周期
+## 时间好像不准（没办法到 ns 级别），无法模拟周期
 
 RED = (255, 0, 0)
 ORANGE = (255,165, 0)

@@ -24,6 +24,17 @@ class WS2812:
     Version: 1.0
     """
     buf_bytes = (0x88, 0x8e, 0xe8, 0xee)
+    # WS2812 没有时钟线，所以都是靠时长
+    # 0 码： 高电平220ns-420ns 低电平 750ns~1600ns
+    # 1 码： 高电平750ns~1600ns 低电平 220ns~420ns
+    # 利用 SPI 该频率下传输数据时电平高低
+    # 3200000Hz 大概 312.5ns 正好在 220ns~420ns 之间；312.5ns * 3 也在 750ns~1600ns 之间
+    # 所以 0 码可以用 0x8 表示  1 码用 0xe 表示。
+    # 正好可以1字节数据传输 2 个码
+    # 0x88 = 0b10001000 就是 00
+    # 0x8e = 0b10001110 就是 01
+    # 0xe8 = 0b11101000 就是 10
+    # 0xee = 0b11101110 就是 11
 
     def __init__(self, spi_bus=1, led_count=1, intensity=1):
         """
@@ -80,8 +91,8 @@ class WS2812:
         buf_bytes = self.buf_bytes
         intensity = self.intensity
 
-        mask = 0x03
-        index = start * 12
+        mask = 0x03 # 0b11 就是只有 0-3 确保不超过 buf_bytes 的长度
+        index = start * 12 # 1byte 传 2bit 所以 8bit 需要 4byte，RGB 3色 合计 12byte
         for red, green, blue in data:
             red = int(red * intensity)
             green = int(green * intensity)
@@ -114,6 +125,7 @@ class WS2812:
         """
         end = self.update_buf(data)
 
+        # 如果 data 没有设置所有的灯的颜色，补0
         # turn off the rest of the LEDs
         buf = self.buf
         off = self.buf_bytes[0]
