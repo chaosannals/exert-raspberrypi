@@ -3,7 +3,7 @@ from machine import SPI, Pin
 from time import sleep, sleep_us
 from math import sqrt
 
-# TFTRotations and TFTRGB are bits to set
+# TFT_ROTATIONS and TFTRGB are bits to set
 # on MADCTL to control display rotation/color layout
 # Looking at display with pins on top.
 # 00 = upper left printing right
@@ -16,19 +16,20 @@ from math import sqrt
 # 60 = 90 right rotation
 # C0 = 180 right rotation
 # A0 = 270 right rotation
-TFTRotations = [0x00, 0x60, 0xC0, 0xA0]
+TFT_ROTATIONS = [0x00, 0x60, 0xC0, 0xA0]
 TFTBGR = 0x08  # When set color is bgr else rgb.
 TFTRGB = 0x00
 
 # @micropython.native
-def clamp(aValue, aMin, aMax):
-    return max(aMin, min(aMax, aValue))
+def clamp(v, aMin, aMax):
+    return max(aMin, min(aMax, v))
 
 # @micropython.native
-def TFTColor(aR, aG, aB):
-    '''Create a 16 bit rgb value from the given R,G,B from 0-255.
-       This assumes rgb 565 layout and will be incorrect for bgr.'''
-    return ((aR & 0xF8) << 8) | ((aG & 0xFC) << 3) | (aB >> 3)
+def to_r5g6b5(r, g, b):
+    '''
+    3个 8bit 的 RGB 值转换成 单个 16bit 的 rgb 565 值
+    '''
+    return ((r & 0xF8) << 11) | ((g & 0xFC) << 3) | (b >> 3)
 
 
 SCREEN_SIZE = (128, 160)
@@ -86,35 +87,28 @@ class TFT(object):
     GMCTRN1 = 0xE1
 
     BLACK = 0
-    RED = TFTColor(0xFF, 0x00, 0x00)
-    MAROON = TFTColor(0x80, 0x00, 0x00)
-    GREEN = TFTColor(0x00, 0xFF, 0x00)
-    FOREST = TFTColor(0x00, 0x80, 0x80)
-    BLUE = TFTColor(0x00, 0x00, 0xFF)
-    NAVY = TFTColor(0x00, 0x00, 0x80)
-    CYAN = TFTColor(0x00, 0xFF, 0xFF)
-    YELLOW = TFTColor(0xFF, 0xFF, 0x00)
-    PURPLE = TFTColor(0xFF, 0x00, 0xFF)
-    WHITE = TFTColor(0xFF, 0xFF, 0xFF)
-    GRAY = TFTColor(0x80, 0x80, 0x80)
+    RED = to_r5g6b5(0xFF, 0x00, 0x00)
+    MAROON = to_r5g6b5(0x80, 0x00, 0x00)
+    GREEN = to_r5g6b5(0x00, 0xFF, 0x00)
+    FOREST = to_r5g6b5(0x00, 0x80, 0x80)
+    BLUE = to_r5g6b5(0x00, 0x00, 0xFF)
+    NAVY = to_r5g6b5(0x00, 0x00, 0x80)
+    CYAN = to_r5g6b5(0x00, 0xFF, 0xFF)
+    YELLOW = to_r5g6b5(0xFF, 0xFF, 0x00)
+    PURPLE = to_r5g6b5(0xFF, 0x00, 0xFF)
+    WHITE = to_r5g6b5(0xFF, 0xFF, 0xFF)
+    GRAY = to_r5g6b5(0x80, 0x80, 0x80)
 
-    @staticmethod
-    def color(aR, aG, aB):
-        '''Create a 565 rgb TFTColor value'''
-        return TFTColor(aR, aG, aB)
-
-    def __init__(self, spi, aDC, aReset, aCS):
-        """aLoc SPI pin location is either 1 for 'X' or 2 for 'Y'.
-           aDC is the DC pin and aReset is the reset pin."""
+    def __init__(self, spi, dc, reset, cs):
         self._size = SCREEN_SIZE
         self._offset = bytearray([0, 0])
         self.rotate = 0  # Vertical with top toward pins.
         self._rgb = True  # color order of rgb.
         self.tfa = 0  # top fixed area
         self.bfa = 0  # bottom fixed area
-        self.dc = Pin(aDC, Pin.OUT, Pin.PULL_DOWN)
-        self.reset = Pin(aReset, Pin.OUT, Pin.PULL_DOWN)
-        self.cs = Pin(aCS, Pin.OUT, Pin.PULL_DOWN)
+        self.dc = Pin(dc, Pin.OUT, Pin.PULL_DOWN)
+        self.reset = Pin(reset, Pin.OUT, Pin.PULL_DOWN)
+        self.cs = Pin(cs, Pin.OUT, Pin.PULL_DOWN)
         self.cs(1)
         self.spi = spi
         self.colorData = bytearray(2)
@@ -502,7 +496,7 @@ class TFT(object):
         '''Set screen rotation and RGB/BGR format.'''
         self._writecommand(TFT.MADCTL)
         rgb = TFTRGB if self._rgb else TFTBGR
-        self._writedata(bytearray([TFTRotations[self.rotate] | rgb]))
+        self._writedata(bytearray([TFT_ROTATIONS[self.rotate] | rgb]))
 
     # @micropython.native
     def _reset(self):
@@ -520,9 +514,9 @@ class TFT(object):
         '''Initialize a green tab version.'''
         self._reset()
 
-        self._writecommand(TFT.SWRESET)  # Software reset.
+        self._writecommand(TFT.SWRESET)  # 软件重置
         sleep_us(150)
-        self._writecommand(TFT.SLPOUT)  # out of sleep mode.
+        self._writecommand(TFT.SLPOUT)  # 退出睡眠模式
         sleep_us(255)
 
         # fastest refresh, 6 lines front, 3 lines back.
