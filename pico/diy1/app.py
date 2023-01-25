@@ -37,6 +37,7 @@ def nrf_listen(spi=SPI(1, sck=Pin(10), mosi=Pin(11), miso=Pin(12)), cs=13, ce=14
     nrf.open_rx_pipe(1, PIPES[0])
     nrf.start_listening()
     print('start listen')
+    millis, led_state = (None, None)
     while True:
         if nrf.any():
             while nrf.any():
@@ -45,10 +46,11 @@ def nrf_listen(spi=SPI(1, sck=Pin(10), mosi=Pin(11), miso=Pin(12)), cs=13, ce=14
                 print(f'received: {millis} {led_state}')
             nrf.stop_listening()
             try:
-                nrf.send(pack('ii', millis, led_state))
+                if millis is not None and led_state is not None:
+                    nrf.send(pack('ii', millis, led_state))
+                    print(f'send response: {millis}')
             except OSError:
                 pass
-            print(f'send response: {millis}')
             nrf.start_listening()
             
 nrf_listen()
