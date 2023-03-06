@@ -1,4 +1,7 @@
 # 气压传感器 BMP280
+# VCC 3.3V
+# 源码来自网络
+# TODO read source
 
 
 from micropython import const
