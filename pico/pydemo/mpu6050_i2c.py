@@ -1,4 +1,5 @@
 # 陀螺仪
+# 库来自 https://github.com/micropython-IMU/micropython-mpu9x50
 
 from machine import I2C, Pin
 from mpu6050 import MPU6050
