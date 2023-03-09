@@ -1,5 +1,5 @@
 from machine import Pin, SPI
-from time import sleep
+from time import sleep, sleep_ms
 from struct import unpack, pack
 from drive.st7735s import TFT
 from drive.nrf24l01 import NRF24L01
@@ -13,11 +13,11 @@ def tft_init(spi=SPI(0, sck=Pin(2), mosi=Pin(3)), cs=5, dc=6, reset=7):
     return t
 
 def tft_do(t: TFT):
-    sleep(1)
+    sleep(0.4)
     t.fill(t.RED)
-    sleep(1)
+    sleep(0.4)
     t.fill(t.BLUE)
-    sleep(1)
+    sleep(0.4)
     t.fill(t.GREEN)
 
 tft = tft_init()
@@ -47,8 +47,13 @@ def nrf_listen(spi=SPI(1, sck=Pin(10), mosi=Pin(11), miso=Pin(12)), cs=13, ce=14
             nrf.stop_listening()
             try:
                 if millis is not None and led_state is not None:
+                    # 给 主机接收 listen start 提供时间
+                    sleep_ms(44)
+                    
                     nrf.send(pack('ii', millis, led_state))
-                    print(f'send response: {millis}')
+                    print(f'send {led_state} response: {millis}')
+                else:
+                    print(f'failed {led_state} {millis}')
             except OSError:
                 pass
             nrf.start_listening()

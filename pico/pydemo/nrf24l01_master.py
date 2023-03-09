@@ -21,6 +21,7 @@ elif usys.platform == "esp32":  # Software SPI
     cfg = {"spi": -1, "miso": 32, "mosi": 33, "sck": 25, "csn": 26, "ce": 27}
 elif usys.platform == "rp2":  # PI PICO
     cfg = {"spi": 0, "miso": 4, "mosi": 7, "sck": 6, "csn": 14, "ce": 17}
+    #cfg = {"spi": 1, "miso": 12, "mosi": 11, "sck": 10, "csn": 13, "ce": 14}
 else:
     raise ValueError("Unsupported platform {}".format(usys.platform))
 
@@ -61,15 +62,18 @@ def master():
             pass
 
         # start listening again
+        init_time = utime.ticks_ms()
         nrf.start_listening()
+
 
         # wait for response, with 250ms timeout
         start_time = utime.ticks_ms()
         timeout = False
         while not nrf.any() and not timeout:
-            if utime.ticks_diff(utime.ticks_ms(), start_time) > 250:
+            # if utime.ticks_diff(utime.ticks_ms(), start_time) > 250:
+            if utime.ticks_diff(utime.ticks_ms(), start_time) > 400:
                 timeout = True
-
+        print(f'init time: {start_time - init_time}')
         if timeout:
             print("failed, response timed out")
             num_failures += 1
