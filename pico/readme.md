@@ -21,3 +21,8 @@
 [pico-sdk](https://github.com/raspberrypi/pico-sdk)
 
 ## [awesome micropython](https://awesome-micropython.com/)
+
+
+## 启动
+
+micropython 默认执行根目录下 main.py 文件。
