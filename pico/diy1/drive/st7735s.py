@@ -101,7 +101,7 @@ class TFT(object):
 
     def __init__(self, spi, dc, reset, cs):
         self._size = SCREEN_SIZE
-        self._offset = bytearray([0, 0])
+        self._offset = bytearray([2, 1])
         self.rotate = 0  # Vertical with top toward pins.
         self._rgb = True  # color order of rgb.
         self.tfa = 0  # top fixed area
