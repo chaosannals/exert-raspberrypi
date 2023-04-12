@@ -21,6 +21,7 @@ elif usys.platform == "esp32":  # Software SPI
     cfg = {"spi": -1, "miso": 32, "mosi": 33, "sck": 25, "csn": 26, "ce": 27}
 elif usys.platform == "rp2":  # PI PICO
     cfg = {"spi": 0, "miso": 4, "mosi": 7, "sck": 6, "csn": 14, "ce": 17}
+    #cfg = {"spi": 0, "miso": 0, "mosi": 3, "sck": 2, "csn": 5, "ce": 6}
     #cfg = {"spi": 1, "miso": 12, "mosi": 11, "sck": 10, "csn": 13, "ce": 14}
 else:
     raise ValueError("Unsupported platform {}".format(usys.platform))
